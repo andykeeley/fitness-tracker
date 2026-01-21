@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Fitness Tracker{% endblock %}
+{% block title %}Andy's Health and Fitness Hub{% endblock %}
 
 {% block content %}
 {% if in_progress %}
@@ -47,6 +47,7 @@
                 {% if workout.duration_minutes %}{{ workout.duration_minutes }} min{% endif %}
             {% else %}
                 {{ workout.exercise_count }} exercises · {{ workout.set_count }} sets
+                {% if workout.duration_minutes %} · {{ workout.duration_minutes }} min{% endif %}
             {% endif %}
         </div>
         {% if workout.notes %}

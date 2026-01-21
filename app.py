@@ -405,6 +405,8 @@ def update_run(workout_id):
 @app.route('/workout/<int:workout_id>/summary')
 def workout_summary(workout_id):
     """Workout summary page before saving."""
+    duration = request.args.get('duration', type=int)
+
     conn = get_db()
     cur = get_cursor(conn)
     cur.execute(p('SELECT * FROM workouts WHERE id = ?'), (workout_id,))
@@ -434,20 +436,21 @@ def workout_summary(workout_id):
 
     cur.close()
     conn.close()
-    return render_template('workout_summary.html', workout=workout, exercises=exercises_with_sets)
+    return render_template('workout_summary.html', workout=workout, exercises=exercises_with_sets, duration=duration)
 
 @app.route('/workout/<int:workout_id>/finish', methods=['POST'])
 def finish_workout(workout_id):
-    """Mark workout as completed with notes."""
+    """Mark workout as completed with notes and duration."""
     notes = request.form.get('notes', '')
+    duration = request.form.get('duration_minutes', type=int)
 
     conn = get_db()
     cur = get_cursor(conn)
     cur.execute(p(
         '''UPDATE workouts
-           SET status = 'completed', notes = ?, completed_at = CURRENT_TIMESTAMP
+           SET status = 'completed', notes = ?, duration_minutes = ?, completed_at = CURRENT_TIMESTAMP
            WHERE id = ?'''
-    ), (notes, workout_id))
+    ), (notes, duration, workout_id))
     conn.commit()
     cur.close()
     conn.close()

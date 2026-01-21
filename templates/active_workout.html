@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Active Workout - Fitness Tracker{% endblock %}
+{% block title %}Active Workout - Andy's Fitness Hub{% endblock %}
 
 {% block content %}
 <div class="active-workout">
@@ -8,7 +8,10 @@
         <div class="workout-type-badge">
             {% if workout.workout_type == 'strength' %}🏋️ Strength{% else %}⚡ Circuit{% endif %}
         </div>
-        <div class="workout-date">{{ workout.date }}</div>
+        <div class="workout-timer" id="workout-timer">
+            <span class="timer-display" id="timer-display">00:00</span>
+            <button type="button" class="btn btn-timer" id="timer-toggle" title="Pause/Resume">⏸️</button>
+        </div>
     </div>
 
     <!-- Add Exercise Form -->
@@ -97,7 +100,117 @@
         <form method="POST" action="{{ url_for('cancel_workout', workout_id=workout.id) }}" class="inline-form">
             <button type="submit" class="btn btn-secondary" onclick="return confirm('Cancel this workout? All data will be lost.')">Cancel Workout</button>
         </form>
-        <a href="{{ url_for('workout_summary', workout_id=workout.id) }}" class="btn btn-primary btn-finish">Finish Workout</a>
+        <a href="{{ url_for('workout_summary', workout_id=workout.id) }}" class="btn btn-primary btn-finish" id="finish-btn">Finish Workout</a>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    const workoutId = {{ workout.id }};
+    const storageKey = 'workout_timer_' + workoutId;
+    const startTime = new Date('{{ workout.created_at }}').getTime();
+
+    let isPaused = false;
+    let pausedTime = 0;
+    let pauseStart = null;
+
+    // Load saved state from localStorage
+    const savedState = localStorage.getItem(storageKey);
+    if (savedState) {
+        const state = JSON.parse(savedState);
+        pausedTime = state.pausedTime || 0;
+        isPaused = state.isPaused || false;
+        if (isPaused && state.pauseStart) {
+            pauseStart = state.pauseStart;
+        }
+    }
+
+    const timerDisplay = document.getElementById('timer-display');
+    const timerToggle = document.getElementById('timer-toggle');
+    const finishBtn = document.getElementById('finish-btn');
+
+    function formatTime(seconds) {
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        if (hrs > 0) {
+            return `${hrs}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function getElapsedSeconds() {
+        const now = Date.now();
+        let elapsed = Math.floor((now - startTime) / 1000) - Math.floor(pausedTime / 1000);
+
+        if (isPaused && pauseStart) {
+            elapsed -= Math.floor((now - pauseStart) / 1000);
+        }
+
+        return Math.max(0, elapsed);
+    }
+
+    function updateDisplay() {
+        const elapsed = getElapsedSeconds();
+        timerDisplay.textContent = formatTime(elapsed);
+
+        if (isPaused) {
+            timerDisplay.classList.add('paused');
+            timerToggle.textContent = '▶️';
+            timerToggle.title = 'Resume';
+        } else {
+            timerDisplay.classList.remove('paused');
+            timerToggle.textContent = '⏸️';
+            timerToggle.title = 'Pause';
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem(storageKey, JSON.stringify({
+            pausedTime: pausedTime,
+            isPaused: isPaused,
+            pauseStart: pauseStart
+        }));
+    }
+
+    function togglePause() {
+        if (isPaused) {
+            // Resume
+            if (pauseStart) {
+                pausedTime += Date.now() - pauseStart;
+            }
+            pauseStart = null;
+            isPaused = false;
+        } else {
+            // Pause
+            pauseStart = Date.now();
+            isPaused = true;
+        }
+        saveState();
+        updateDisplay();
+    }
+
+    timerToggle.addEventListener('click', togglePause);
+
+    // Update finish button to include duration
+    finishBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const elapsed = getElapsedSeconds();
+        const durationMinutes = Math.round(elapsed / 60);
+
+        // Clear the timer state
+        localStorage.removeItem(storageKey);
+
+        // Navigate with duration as query param
+        window.location.href = finishBtn.href + '?duration=' + durationMinutes;
+    });
+
+    // Update timer every second
+    updateDisplay();
+    setInterval(updateDisplay, 1000);
+})();
+</script>
 {% endblock %}

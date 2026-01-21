@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>{% block title %}Fitness Tracker{% endblock %}</title>
+    <title>{% block title %}Andy's Health and Fitness Hub{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
         <nav>
-            <a href="{{ url_for('index') }}" class="logo">Fitness Tracker</a>
+            <a href="{{ url_for('index') }}" class="logo">Andy's Fitness Hub</a>
             <div class="nav-links">
                 <a href="{{ url_for('list_templates') }}" class="nav-link">Templates</a>
-                <a href="{{ url_for('select_workout_type') }}" class="btn btn-primary">+ New Workout</a>
+                <a href="{{ url_for('select_workout_type') }}" class="btn btn-primary">+ New</a>
             </div>
         </nav>
     </header>
@@ -22,5 +25,6 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

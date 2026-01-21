@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Workout Summary - Fitness Tracker{% endblock %}
+{% block title %}Workout Summary - Andy's Fitness Hub{% endblock %}
 
 {% block content %}
 <div class="workout-summary">
@@ -13,6 +13,12 @@
             {% else %}🏃 Run{% endif %}
         </div>
         <div class="workout-date">{{ workout.date }}</div>
+        {% if duration %}
+        <div class="workout-duration-display">
+            <span class="duration-icon">⏱️</span>
+            <span class="duration-value">{{ duration }} min</span>
+        </div>
+        {% endif %}
     </div>
 
     {% if workout.workout_type == 'run' %}
@@ -68,6 +74,9 @@
 
     <!-- Notes Form -->
     <form method="POST" action="{{ url_for('finish_workout', workout_id=workout.id) }}" class="notes-form">
+        {% if duration %}
+        <input type="hidden" name="duration_minutes" value="{{ duration }}">
+        {% endif %}
         <div class="form-group">
             <label for="notes">Session Notes (optional)</label>
             <textarea id="notes" name="notes" rows="3" placeholder="How did it go? Any feedback or observations?">{{ workout.notes or '' }}</textarea>

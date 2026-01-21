@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ workout.workout_type|capitalize }} Workout - Fitness Tracker{% endblock %}
+{% block title %}{{ workout.workout_type|capitalize }} Workout - Andy's Fitness Hub{% endblock %}
 
 {% block content %}
 <div class="workout-detail">
@@ -11,6 +11,9 @@
             {% else %}🏃 Run{% endif %}
         </div>
         <p class="workout-date">{{ workout.date }}</p>
+        {% if workout.duration_minutes %}
+        <p class="workout-duration">⏱️ {{ workout.duration_minutes }} min</p>
+        {% endif %}
 
         {% if workout.notes %}
         <div class="notes-display">

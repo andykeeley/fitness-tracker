@@ -1,0 +1,14 @@
+# Database
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

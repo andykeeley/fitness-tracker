@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Recent Workouts - Fitness Tracker{% endblock %}
+
+{% block content %}
+<h1>Recent Workouts</h1>
+
+{% if workouts %}
+<div class="workout-list">
+    {% for workout in workouts %}
+    <a href="{{ url_for('view_workout', workout_id=workout.id) }}" class="workout-card">
+        <div class="workout-header">
+            <span class="exercise-type">{{ workout.exercise_type }}</span>
+            <span class="workout-date">{{ workout.date }}</span>
+        </div>
+        <div class="workout-stats">
+            <span class="set-count">{{ workout.set_count }} sets</span>
+        </div>
+        {% if workout.notes %}
+        <div class="workout-notes">{{ workout.notes[:50] }}{% if workout.notes|length > 50 %}...{% endif %}</div>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No workouts logged yet.</p>
+    <a href="{{ url_for('new_workout') }}" class="btn btn-primary">Log Your First Workout</a>
+</div>
+{% endif %}
+{% endblock %}

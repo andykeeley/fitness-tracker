@@ -31,6 +31,7 @@ if DATABASE_URL:
                 notes TEXT,
                 duration_minutes INTEGER,
                 distance_km REAL,
+                template_id INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 completed_at TIMESTAMP
             );
@@ -41,6 +42,9 @@ if DATABASE_URL:
                 workout_id INTEGER NOT NULL REFERENCES workouts(id) ON DELETE CASCADE,
                 name TEXT NOT NULL,
                 order_num INTEGER NOT NULL,
+                target_sets INTEGER,
+                target_reps INTEGER,
+                target_weight REAL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         ''')
@@ -52,6 +56,25 @@ if DATABASE_URL:
                 reps INTEGER NOT NULL,
                 weight REAL NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ''')
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS templates (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                workout_type TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ''')
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS template_exercises (
+                id SERIAL PRIMARY KEY,
+                template_id INTEGER NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+                name TEXT NOT NULL,
+                order_num INTEGER NOT NULL,
+                target_sets INTEGER NOT NULL DEFAULT 3,
+                target_reps INTEGER NOT NULL DEFAULT 10,
+                target_weight REAL NOT NULL DEFAULT 0
             );
         ''')
         conn.commit()
@@ -83,6 +106,7 @@ else:
                 notes TEXT,
                 duration_minutes INTEGER,
                 distance_km REAL,
+                template_id INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 completed_at TIMESTAMP
             );
@@ -92,6 +116,9 @@ else:
                 workout_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
                 order_num INTEGER NOT NULL,
+                target_sets INTEGER,
+                target_reps INTEGER,
+                target_weight REAL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE
             );
@@ -104,6 +131,24 @@ else:
                 weight REAL NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE IF NOT EXISTS templates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                workout_type TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS template_exercises (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                template_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                order_num INTEGER NOT NULL,
+                target_sets INTEGER NOT NULL DEFAULT 3,
+                target_reps INTEGER NOT NULL DEFAULT 10,
+                target_weight REAL NOT NULL DEFAULT 0,
+                FOREIGN KEY (template_id) REFERENCES templates (id) ON DELETE CASCADE
             );
         ''')
         conn.commit()
@@ -156,7 +201,18 @@ def index():
 @app.route('/workout/new')
 def select_workout_type():
     """Select workout type page."""
-    return render_template('select_type.html')
+    conn = get_db()
+    cur = get_cursor(conn)
+    cur.execute(p('''
+        SELECT t.*,
+            (SELECT COUNT(*) FROM template_exercises WHERE template_id = t.id) as exercise_count
+        FROM templates t
+        ORDER BY t.name
+    '''))
+    templates = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('select_type.html', templates=templates)
 
 @app.route('/workout/start', methods=['POST'])
 def start_workout():
@@ -478,6 +534,203 @@ def delete_workout(workout_id):
     cur.close()
     conn.close()
     return redirect(url_for('index'))
+
+# ============================================
+# WORKOUT TEMPLATES
+# ============================================
+
+@app.route('/templates')
+def list_templates():
+    """List all workout templates."""
+    conn = get_db()
+    cur = get_cursor(conn)
+    cur.execute(p('''
+        SELECT t.*,
+            (SELECT COUNT(*) FROM template_exercises WHERE template_id = t.id) as exercise_count
+        FROM templates t
+        ORDER BY t.created_at DESC
+    '''))
+    templates = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('templates_list.html', templates=templates)
+
+@app.route('/templates/new', methods=['GET', 'POST'])
+def new_template():
+    """Create a new workout template."""
+    if request.method == 'POST':
+        name = request.form['name'].strip()
+        workout_type = request.form['workout_type']
+
+        if not name:
+            return redirect(url_for('new_template'))
+
+        conn = get_db()
+        cur = get_cursor(conn)
+        cur.execute(p(
+            'INSERT INTO templates (name, workout_type) VALUES (?, ?) RETURNING id'
+            if DATABASE_URL else
+            'INSERT INTO templates (name, workout_type) VALUES (?, ?)'
+        ), (name, workout_type))
+
+        if DATABASE_URL:
+            template_id = cur.fetchone()['id']
+        else:
+            template_id = cur.lastrowid
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return redirect(url_for('edit_template', template_id=template_id))
+
+    return render_template('template_new.html')
+
+@app.route('/templates/<int:template_id>')
+def view_template(template_id):
+    """View a workout template."""
+    conn = get_db()
+    cur = get_cursor(conn)
+
+    cur.execute(p('SELECT * FROM templates WHERE id = ?'), (template_id,))
+    template = cur.fetchone()
+
+    if not template:
+        cur.close()
+        conn.close()
+        return redirect(url_for('list_templates'))
+
+    cur.execute(p(
+        'SELECT * FROM template_exercises WHERE template_id = ? ORDER BY order_num'
+    ), (template_id,))
+    exercises = cur.fetchall()
+
+    cur.close()
+    conn.close()
+    return render_template('template_view.html', template=template, exercises=exercises)
+
+@app.route('/templates/<int:template_id>/edit')
+def edit_template(template_id):
+    """Edit a workout template."""
+    conn = get_db()
+    cur = get_cursor(conn)
+
+    cur.execute(p('SELECT * FROM templates WHERE id = ?'), (template_id,))
+    template = cur.fetchone()
+
+    if not template:
+        cur.close()
+        conn.close()
+        return redirect(url_for('list_templates'))
+
+    cur.execute(p(
+        'SELECT * FROM template_exercises WHERE template_id = ? ORDER BY order_num'
+    ), (template_id,))
+    exercises = cur.fetchall()
+
+    cur.close()
+    conn.close()
+    return render_template('template_edit.html', template=template, exercises=exercises)
+
+@app.route('/templates/<int:template_id>/add_exercise', methods=['POST'])
+def add_template_exercise(template_id):
+    """Add an exercise to a template."""
+    name = request.form['exercise_name'].strip()
+    target_sets = int(request.form.get('target_sets', 3))
+    target_reps = int(request.form.get('target_reps', 10))
+    target_weight = float(request.form.get('target_weight', 0))
+
+    if not name:
+        return redirect(url_for('edit_template', template_id=template_id))
+
+    conn = get_db()
+    cur = get_cursor(conn)
+
+    # Get next order number
+    cur.execute(p(
+        'SELECT MAX(order_num) as max_order FROM template_exercises WHERE template_id = ?'
+    ), (template_id,))
+    result = cur.fetchone()
+    next_order = (result['max_order'] or 0) + 1
+
+    cur.execute(p(
+        'INSERT INTO template_exercises (template_id, name, order_num, target_sets, target_reps, target_weight) VALUES (?, ?, ?, ?, ?, ?)'
+    ), (template_id, name, next_order, target_sets, target_reps, target_weight))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return redirect(url_for('edit_template', template_id=template_id))
+
+@app.route('/templates/<int:template_id>/delete_exercise/<int:exercise_id>', methods=['POST'])
+def delete_template_exercise(template_id, exercise_id):
+    """Delete an exercise from a template."""
+    conn = get_db()
+    cur = get_cursor(conn)
+    cur.execute(p('DELETE FROM template_exercises WHERE id = ?'), (exercise_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('edit_template', template_id=template_id))
+
+@app.route('/templates/<int:template_id>/delete', methods=['POST'])
+def delete_template(template_id):
+    """Delete a workout template."""
+    conn = get_db()
+    cur = get_cursor(conn)
+    cur.execute(p('DELETE FROM template_exercises WHERE template_id = ?'), (template_id,))
+    cur.execute(p('DELETE FROM templates WHERE id = ?'), (template_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('list_templates'))
+
+@app.route('/workout/start-from-template/<int:template_id>', methods=['POST'])
+def start_from_template(template_id):
+    """Start a new workout from a template."""
+    conn = get_db()
+    cur = get_cursor(conn)
+
+    # Get template
+    cur.execute(p('SELECT * FROM templates WHERE id = ?'), (template_id,))
+    template = cur.fetchone()
+
+    if not template:
+        cur.close()
+        conn.close()
+        return redirect(url_for('select_workout_type'))
+
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    # Create workout
+    cur.execute(p(
+        'INSERT INTO workouts (workout_type, date, status, template_id) VALUES (?, ?, ?, ?) RETURNING id'
+        if DATABASE_URL else
+        'INSERT INTO workouts (workout_type, date, status, template_id) VALUES (?, ?, ?, ?)'
+    ), (template['workout_type'], today, 'in_progress', template_id))
+
+    if DATABASE_URL:
+        workout_id = cur.fetchone()['id']
+    else:
+        workout_id = cur.lastrowid
+
+    # Get template exercises
+    cur.execute(p(
+        'SELECT * FROM template_exercises WHERE template_id = ? ORDER BY order_num'
+    ), (template_id,))
+    template_exercises = cur.fetchall()
+
+    # Create exercises from template
+    for te in template_exercises:
+        cur.execute(p(
+            'INSERT INTO exercises (workout_id, name, order_num, target_sets, target_reps, target_weight) VALUES (?, ?, ?, ?, ?, ?)'
+        ), (workout_id, te['name'], te['order_num'], te['target_sets'], te['target_reps'], te['target_weight']))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return redirect(url_for('active_workout', workout_id=workout_id))
 
 # Initialize database on startup
 with app.app_context():

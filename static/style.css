@@ -900,3 +900,432 @@ h3 {
         gap: 1rem;
     }
 }
+
+/* ============================================
+   TEMPLATE STYLES
+   ============================================ */
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+/* Templates List */
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.template-card {
+    display: block;
+    background: var(--bg-card);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, transform 0.1s;
+}
+
+.template-card:hover {
+    border-color: var(--accent);
+}
+
+.template-card:active {
+    transform: scale(0.99);
+}
+
+.template-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.template-icon {
+    font-size: 1.5rem;
+}
+
+.template-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.template-meta {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Template Form */
+.template-form {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.type-select-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.type-option {
+    cursor: pointer;
+}
+
+.type-option input[type="radio"] {
+    display: none;
+}
+
+.type-option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+.type-option input[type="radio"]:checked + .type-option-content {
+    border-color: var(--accent);
+    background: rgba(79, 70, 229, 0.1);
+}
+
+.type-option:hover .type-option-content {
+    border-color: var(--accent);
+}
+
+.type-option .type-icon {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.type-label {
+    font-weight: 600;
+}
+
+/* Template Editor */
+.template-editor,
+.template-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.template-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.template-header-bar h1 {
+    margin: 0;
+}
+
+.template-type-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--bg-card);
+    border-radius: 8px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+}
+
+/* Add Template Exercise Form */
+.add-template-exercise-form {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.add-template-exercise-form h2 {
+    margin-bottom: 1rem;
+}
+
+.form-row.targets {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-row.targets .input-group input {
+    text-align: center;
+}
+
+/* Template Exercises */
+.template-exercises {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.template-exercises h2 {
+    margin-bottom: 1rem;
+}
+
+.template-exercise-card {
+    margin-bottom: 0;
+}
+
+.template-exercise-card h3 {
+    margin: 0;
+}
+
+.exercise-targets {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.target-item {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.target-sep {
+    color: var(--text-secondary);
+}
+
+.exercises-list.view-mode .exercise-card {
+    margin-bottom: 0.75rem;
+}
+
+.exercises-list.view-mode .exercise-card:last-child {
+    margin-bottom: 0;
+}
+
+/* Template Actions */
+.template-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.delete-template-form {
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Start Sections */
+.start-section {
+    margin-bottom: 2rem;
+}
+
+.start-section h2 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.start-section .subtitle {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Templates Grid for Starting Workout */
+.templates-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.template-start-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.1s;
+    width: 100%;
+    text-align: left;
+}
+
+.template-start-card:hover {
+    border-color: var(--accent);
+}
+
+.template-start-card:active {
+    transform: scale(0.98);
+}
+
+.template-start-card .type-icon {
+    font-size: 1.75rem;
+}
+
+.template-start-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.template-start-meta {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Target Bar in Active Workout */
+.exercise-target-bar {
+    padding: 0.5rem 1rem;
+    background: rgba(79, 70, 229, 0.15);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.target-label {
+    color: var(--text-secondary);
+}
+
+.target-value {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* Exercise Progress */
+.exercise-progress {
+    padding: 0.75rem 1rem;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border);
+}
+
+.progress-text {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--success);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Set Comparison */
+.set-comparison {
+    color: var(--success);
+    font-weight: 600;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+
+.set-row.target-met {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Has Targets indicator */
+.exercise-card.has-targets {
+    border-color: rgba(79, 70, 229, 0.3);
+}
+
+/* Mobile adjustments for templates */
+@media (max-width: 480px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    .type-select-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row.targets {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-row.targets .input-group:last-child {
+        grid-column: span 2;
+    }
+
+    .template-actions {
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        width: 100%;
+    }
+
+    .action-buttons .btn {
+        flex: 1;
+    }
+
+    .template-start-card {
+        flex-wrap: wrap;
+    }
+
+    .template-start-meta {
+        width: 100%;
+        margin-left: 2.75rem;
+    }
+
+    .nav-links {
+        gap: 0.75rem;
+    }
+
+    .nav-link {
+        font-size: 0.875rem;
+    }
+}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Template - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="template-editor">
+    <div class="template-header-bar">
+        <h1>{{ template.name }}</h1>
+        <div class="template-type-badge">
+            {% if template.workout_type == 'strength' %}🏋️ Strength{% else %}⚡ Circuit{% endif %}
+        </div>
+    </div>
+
+    <!-- Add Exercise Form -->
+    <form method="POST" action="{{ url_for('add_template_exercise', template_id=template.id) }}" class="add-template-exercise-form">
+        <h2>Add Exercise</h2>
+        <div class="form-group">
+            <label for="exercise_name">Exercise Name</label>
+            <input type="text" id="exercise_name" name="exercise_name" placeholder="e.g., Bench Press" required>
+        </div>
+        <div class="form-row targets">
+            <div class="input-group">
+                <label for="target_sets">Sets</label>
+                <input type="number" id="target_sets" name="target_sets" min="1" value="3" required>
+            </div>
+            <div class="input-group">
+                <label for="target_reps">Reps</label>
+                <input type="number" id="target_reps" name="target_reps" min="1" value="10" required>
+            </div>
+            <div class="input-group">
+                <label for="target_weight">Weight (kg)</label>
+                <input type="number" id="target_weight" name="target_weight" min="0" step="0.5" value="0" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Exercise</button>
+    </form>
+
+    <!-- Exercise List -->
+    {% if exercises %}
+    <section class="template-exercises">
+        <h2>Exercises ({{ exercises|length }})</h2>
+        <div class="exercises-list">
+            {% for exercise in exercises %}
+            <div class="exercise-card template-exercise-card">
+                <div class="exercise-header">
+                    <h3>{{ exercise.name }}</h3>
+                    <form method="POST" action="{{ url_for('delete_template_exercise', template_id=template.id, exercise_id=exercise.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Remove this exercise from template?')">✕</button>
+                    </form>
+                </div>
+                <div class="exercise-targets">
+                    <span class="target-item">{{ exercise.target_sets }} sets</span>
+                    <span class="target-sep">×</span>
+                    <span class="target-item">{{ exercise.target_reps }} reps</span>
+                    <span class="target-sep">@</span>
+                    <span class="target-item">{{ exercise.target_weight }} kg</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="empty-state">
+        <p>No exercises in this template yet.</p>
+        <p class="hint">Add exercises above to build your workout template.</p>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="template-actions">
+        <a href="{{ url_for('list_templates') }}" class="btn btn-secondary">Back to Templates</a>
+        <a href="{{ url_for('view_template', template_id=template.id) }}" class="btn btn-primary">Done Editing</a>
+    </div>
+</div>
+{% endblock %}

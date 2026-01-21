@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}New Template - Fitness Tracker{% endblock %}
+
+{% block content %}
+<h1>Create Template</h1>
+
+<form method="POST" class="template-form">
+    <div class="form-group">
+        <label for="name">Template Name</label>
+        <input type="text" id="name" name="name" placeholder="e.g., Upper Body Day, Leg Day" required>
+    </div>
+
+    <div class="form-group">
+        <label>Workout Type</label>
+        <div class="type-select-grid">
+            <label class="type-option">
+                <input type="radio" name="workout_type" value="strength" checked>
+                <span class="type-option-content">
+                    <span class="type-icon">🏋️</span>
+                    <span class="type-label">Strength</span>
+                </span>
+            </label>
+            <label class="type-option">
+                <input type="radio" name="workout_type" value="circuit">
+                <span class="type-option-content">
+                    <span class="type-icon">⚡</span>
+                    <span class="type-label">Circuit</span>
+                </span>
+            </label>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ url_for('list_templates') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create & Add Exercises</button>
+    </div>
+</form>
+{% endblock %}

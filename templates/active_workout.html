@@ -23,7 +23,7 @@
     {% if exercises %}
     <div class="exercises-list">
         {% for item in exercises %}
-        <div class="exercise-card">
+        <div class="exercise-card{% if item.exercise.target_sets %} has-targets{% endif %}">
             <div class="exercise-header">
                 <h3>{{ item.exercise.name }}</h3>
                 <form method="POST" action="{{ url_for('delete_exercise', workout_id=workout.id, exercise_id=item.exercise.id) }}" class="inline-form">
@@ -31,13 +31,25 @@
                 </form>
             </div>
 
+            {% if item.exercise.target_sets %}
+            <div class="exercise-target-bar">
+                <span class="target-label">Target:</span>
+                <span class="target-value">{{ item.exercise.target_sets }} sets × {{ item.exercise.target_reps }} reps @ {{ item.exercise.target_weight }} kg</span>
+            </div>
+            {% endif %}
+
             <!-- Sets for this exercise -->
             {% if item.sets %}
             <div class="sets-list">
                 {% for set in item.sets %}
-                <div class="set-row">
+                <div class="set-row{% if item.exercise.target_reps and set.reps >= item.exercise.target_reps and item.exercise.target_weight and set.weight >= item.exercise.target_weight %} target-met{% endif %}">
                     <span class="set-badge">{{ set.set_number }}</span>
                     <span class="set-info">{{ set.reps }} reps × {{ set.weight }} kg</span>
+                    {% if item.exercise.target_reps %}
+                    <span class="set-comparison">
+                        {% if set.reps >= item.exercise.target_reps and set.weight >= item.exercise.target_weight %}✓{% endif %}
+                    </span>
+                    {% endif %}
                     <form method="POST" action="{{ url_for('delete_set', workout_id=workout.id, exercise_id=item.exercise.id, set_id=set.id) }}" class="inline-form">
                         <button type="submit" class="btn btn-delete-small">✕</button>
                     </form>
@@ -46,16 +58,26 @@
             </div>
             {% endif %}
 
+            <!-- Progress indicator for template exercises -->
+            {% if item.exercise.target_sets %}
+            <div class="exercise-progress">
+                <span class="progress-text">{{ item.sets|length }} / {{ item.exercise.target_sets }} sets completed</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ [100, (item.sets|length / item.exercise.target_sets * 100)]|min }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Add Set Form -->
             <form method="POST" action="{{ url_for('add_set', workout_id=workout.id, exercise_id=item.exercise.id) }}" class="add-set-form">
                 <div class="set-inputs">
                     <div class="input-group">
                         <label>Reps</label>
-                        <input type="number" name="reps" min="1" placeholder="10" required>
+                        <input type="number" name="reps" min="1" placeholder="{{ item.exercise.target_reps or '10' }}" value="{{ item.exercise.target_reps or '' }}" required>
                     </div>
                     <div class="input-group">
                         <label>Weight (kg)</label>
-                        <input type="number" name="weight" min="0" step="0.5" placeholder="50" required>
+                        <input type="number" name="weight" min="0" step="0.5" placeholder="{{ item.exercise.target_weight or '50' }}" value="{{ item.exercise.target_weight or '' }}" required>
                     </div>
                     <button type="submit" class="btn btn-add-set">+ Set</button>
                 </div>

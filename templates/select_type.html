@@ -4,36 +4,59 @@
 
 {% block content %}
 <h1>Start Workout</h1>
-<p class="subtitle">What type of workout?</p>
 
-<div class="workout-type-grid">
-    <form method="POST" action="{{ url_for('start_workout') }}">
-        <input type="hidden" name="workout_type" value="strength">
-        <button type="submit" class="workout-type-card">
-            <span class="type-icon">🏋️</span>
-            <span class="type-name">Strength Training</span>
-            <span class="type-desc">Weights, machines, resistance</span>
-        </button>
-    </form>
+{% if templates %}
+<section class="start-section">
+    <h2>From Template</h2>
+    <div class="templates-grid">
+        {% for template in templates %}
+        <form method="POST" action="{{ url_for('start_from_template', template_id=template.id) }}">
+            <button type="submit" class="template-start-card">
+                <span class="type-icon">
+                    {% if template.workout_type == 'strength' %}🏋️{% else %}⚡{% endif %}
+                </span>
+                <span class="template-start-name">{{ template.name }}</span>
+                <span class="template-start-meta">{{ template.exercise_count }} exercises</span>
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
-    <form method="POST" action="{{ url_for('start_workout') }}">
-        <input type="hidden" name="workout_type" value="circuit">
-        <button type="submit" class="workout-type-card">
-            <span class="type-icon">⚡</span>
-            <span class="type-name">Circuit Training</span>
-            <span class="type-desc">High intensity, multiple exercises</span>
-        </button>
-    </form>
+<section class="start-section">
+    <h2>Blank Workout</h2>
+    <p class="subtitle">Start fresh without a template</p>
 
-    <form method="POST" action="{{ url_for('start_workout') }}">
-        <input type="hidden" name="workout_type" value="run">
-        <button type="submit" class="workout-type-card">
-            <span class="type-icon">🏃</span>
-            <span class="type-name">Run</span>
-            <span class="type-desc">Track distance and duration</span>
-        </button>
-    </form>
-</div>
+    <div class="workout-type-grid">
+        <form method="POST" action="{{ url_for('start_workout') }}">
+            <input type="hidden" name="workout_type" value="strength">
+            <button type="submit" class="workout-type-card">
+                <span class="type-icon">🏋️</span>
+                <span class="type-name">Strength Training</span>
+                <span class="type-desc">Weights, machines, resistance</span>
+            </button>
+        </form>
+
+        <form method="POST" action="{{ url_for('start_workout') }}">
+            <input type="hidden" name="workout_type" value="circuit">
+            <button type="submit" class="workout-type-card">
+                <span class="type-icon">⚡</span>
+                <span class="type-name">Circuit Training</span>
+                <span class="type-desc">High intensity, multiple exercises</span>
+            </button>
+        </form>
+
+        <form method="POST" action="{{ url_for('start_workout') }}">
+            <input type="hidden" name="workout_type" value="run">
+            <button type="submit" class="workout-type-card">
+                <span class="type-icon">🏃</span>
+                <span class="type-name">Run</span>
+                <span class="type-desc">Track distance and duration</span>
+            </button>
+        </form>
+    </div>
+</section>
 
 <div class="back-link">
     <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>

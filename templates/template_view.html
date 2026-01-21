@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{{ template.name }} - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="template-detail">
+    <div class="template-header-bar">
+        <h1>{{ template.name }}</h1>
+        <div class="template-type-badge">
+            {% if template.workout_type == 'strength' %}🏋️ Strength{% else %}⚡ Circuit{% endif %}
+        </div>
+    </div>
+
+    {% if exercises %}
+    <section class="template-exercises">
+        <h2>Exercises ({{ exercises|length }})</h2>
+        <div class="exercises-list view-mode">
+            {% for exercise in exercises %}
+            <div class="exercise-card template-exercise-card">
+                <h3>{{ exercise.name }}</h3>
+                <div class="exercise-targets">
+                    <span class="target-item">{{ exercise.target_sets }} sets</span>
+                    <span class="target-sep">×</span>
+                    <span class="target-item">{{ exercise.target_reps }} reps</span>
+                    <span class="target-sep">@</span>
+                    <span class="target-item">{{ exercise.target_weight }} kg</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="empty-state">
+        <p>No exercises in this template.</p>
+        <p class="hint">Edit this template to add exercises.</p>
+    </div>
+    {% endif %}
+
+    <div class="template-actions">
+        <a href="{{ url_for('list_templates') }}" class="btn btn-secondary">Back to Templates</a>
+        <div class="action-buttons">
+            <a href="{{ url_for('edit_template', template_id=template.id) }}" class="btn btn-secondary">Edit</a>
+            <form method="POST" action="{{ url_for('start_from_template', template_id=template.id) }}" class="inline-form">
+                <button type="submit" class="btn btn-primary">Start Workout</button>
+            </form>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('delete_template', template_id=template.id) }}" class="delete-template-form">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this template permanently?')">Delete Template</button>
+    </form>
+</div>
+{% endblock %}

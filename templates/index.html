@@ -1,8 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Recent Workouts - Fitness Tracker{% endblock %}
+{% block title %}Fitness Tracker{% endblock %}
 
 {% block content %}
+{% if in_progress %}
+<!-- In-Progress Workout Banner -->
+<div class="in-progress-banner">
+    <div class="banner-content">
+        <span class="banner-icon">
+            {% if in_progress.workout_type == 'strength' %}🏋️
+            {% elif in_progress.workout_type == 'circuit' %}⚡
+            {% else %}🏃{% endif %}
+        </span>
+        <div class="banner-text">
+            <span class="banner-title">Workout in progress</span>
+            <span class="banner-subtitle">{{ in_progress.workout_type|capitalize }} - {{ in_progress.date }}</span>
+        </div>
+    </div>
+    {% if in_progress.workout_type == 'run' %}
+    <a href="{{ url_for('active_run', workout_id=in_progress.id) }}" class="btn btn-primary">Resume</a>
+    {% else %}
+    <a href="{{ url_for('active_workout', workout_id=in_progress.id) }}" class="btn btn-primary">Resume</a>
+    {% endif %}
+</div>
+{% endif %}
+
 <h1>Recent Workouts</h1>
 
 {% if workouts %}
@@ -10,14 +32,25 @@
     {% for workout in workouts %}
     <a href="{{ url_for('view_workout', workout_id=workout.id) }}" class="workout-card">
         <div class="workout-header">
-            <span class="exercise-type">{{ workout.exercise_type }}</span>
+            <span class="workout-type-icon">
+                {% if workout.workout_type == 'strength' %}🏋️
+                {% elif workout.workout_type == 'circuit' %}⚡
+                {% else %}🏃{% endif %}
+            </span>
+            <span class="exercise-type">{{ workout.workout_type|capitalize }}</span>
             <span class="workout-date">{{ workout.date }}</span>
         </div>
         <div class="workout-stats">
-            <span class="set-count">{{ workout.set_count }} sets</span>
+            {% if workout.workout_type == 'run' %}
+                {% if workout.distance_km %}{{ "%.1f"|format(workout.distance_km) }} km{% endif %}
+                {% if workout.distance_km and workout.duration_minutes %} · {% endif %}
+                {% if workout.duration_minutes %}{{ workout.duration_minutes }} min{% endif %}
+            {% else %}
+                {{ workout.exercise_count }} exercises · {{ workout.set_count }} sets
+            {% endif %}
         </div>
         {% if workout.notes %}
-        <div class="workout-notes">{{ workout.notes[:50] }}{% if workout.notes|length > 50 %}...{% endif %}</div>
+        <div class="workout-notes">{{ workout.notes[:60] }}{% if workout.notes|length > 60 %}...{% endif %}</div>
         {% endif %}
     </a>
     {% endfor %}
@@ -25,7 +58,7 @@
 {% else %}
 <div class="empty-state">
     <p>No workouts logged yet.</p>
-    <a href="{{ url_for('new_workout') }}" class="btn btn-primary">Log Your First Workout</a>
+    <a href="{{ url_for('select_workout_type') }}" class="btn btn-primary">Start Your First Workout</a>
 </div>
 {% endif %}
 {% endblock %}

@@ -1,0 +1,17 @@
+databases:
+  - name: fitness-db
+    plan: free
+
+services:
+  - type: web
+    name: fitness-tracker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fitness-db
+          property: connectionString

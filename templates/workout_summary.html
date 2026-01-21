@@ -1,27 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}{{ workout.workout_type|capitalize }} Workout - Fitness Tracker{% endblock %}
+{% block title %}Workout Summary - Fitness Tracker{% endblock %}
 
 {% block content %}
-<div class="workout-detail">
-    <div class="workout-info">
+<div class="workout-summary">
+    <h1>Workout Summary</h1>
+
+    <div class="summary-header">
         <div class="workout-type-badge large">
             {% if workout.workout_type == 'strength' %}🏋️ Strength Training
             {% elif workout.workout_type == 'circuit' %}⚡ Circuit Training
             {% else %}🏃 Run{% endif %}
         </div>
-        <p class="workout-date">{{ workout.date }}</p>
-
-        {% if workout.notes %}
-        <div class="notes-display">
-            <p>{{ workout.notes }}</p>
-        </div>
-        {% endif %}
+        <div class="workout-date">{{ workout.date }}</div>
     </div>
 
     {% if workout.workout_type == 'run' %}
-    <!-- Run Details -->
-    <div class="run-details">
+    <!-- Run Summary -->
+    <div class="summary-card">
         <div class="run-stats">
             {% if workout.distance_km %}
             <div class="stat">
@@ -45,20 +41,16 @@
         </div>
     </div>
     {% else %}
-    <!-- Strength/Circuit Details -->
+    <!-- Strength/Circuit Summary -->
     {% if exercises %}
-    <section class="exercises-section">
-        <h2>Exercises</h2>
+    <div class="summary-exercises">
         {% for item in exercises %}
-        <div class="exercise-detail">
+        <div class="summary-exercise">
             <h3>{{ item.exercise.name }}</h3>
             {% if item.sets %}
-            <div class="sets-list-view">
+            <div class="summary-sets">
                 {% for set in item.sets %}
-                <div class="set-item-view">
-                    <span class="set-number">Set {{ set.set_number }}</span>
-                    <span class="set-details">{{ set.reps }} reps × {{ set.weight }} kg</span>
-                </div>
+                <span class="summary-set">{{ set.reps }} × {{ set.weight }}kg</span>
                 {% endfor %}
             </div>
             {% else %}
@@ -66,19 +58,29 @@
             {% endif %}
         </div>
         {% endfor %}
-    </section>
+    </div>
     {% else %}
-    <div class="empty-state">
+    <div class="empty-summary">
         <p>No exercises recorded for this workout.</p>
     </div>
     {% endif %}
     {% endif %}
 
-    <div class="workout-actions">
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Workouts</a>
-        <form method="POST" action="{{ url_for('delete_workout', workout_id=workout.id) }}" class="inline-form">
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this workout?')">Delete</button>
-        </form>
-    </div>
+    <!-- Notes Form -->
+    <form method="POST" action="{{ url_for('finish_workout', workout_id=workout.id) }}" class="notes-form">
+        <div class="form-group">
+            <label for="notes">Session Notes (optional)</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="How did it go? Any feedback or observations?">{{ workout.notes or '' }}</textarea>
+        </div>
+
+        <div class="summary-actions">
+            {% if workout.workout_type == 'run' %}
+            <a href="{{ url_for('active_run', workout_id=workout.id) }}" class="btn btn-secondary">Back to Edit</a>
+            {% else %}
+            <a href="{{ url_for('active_workout', workout_id=workout.id) }}" class="btn btn-secondary">Back to Edit</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-finish">Save Workout</button>
+        </div>
+    </form>
 </div>
 {% endblock %}

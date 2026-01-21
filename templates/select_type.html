@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}New Workout - Fitness Tracker{% endblock %}
+
+{% block content %}
+<h1>Start Workout</h1>
+<p class="subtitle">What type of workout?</p>
+
+<div class="workout-type-grid">
+    <form method="POST" action="{{ url_for('start_workout') }}">
+        <input type="hidden" name="workout_type" value="strength">
+        <button type="submit" class="workout-type-card">
+            <span class="type-icon">🏋️</span>
+            <span class="type-name">Strength Training</span>
+            <span class="type-desc">Weights, machines, resistance</span>
+        </button>
+    </form>
+
+    <form method="POST" action="{{ url_for('start_workout') }}">
+        <input type="hidden" name="workout_type" value="circuit">
+        <button type="submit" class="workout-type-card">
+            <span class="type-icon">⚡</span>
+            <span class="type-name">Circuit Training</span>
+            <span class="type-desc">High intensity, multiple exercises</span>
+        </button>
+    </form>
+
+    <form method="POST" action="{{ url_for('start_workout') }}">
+        <input type="hidden" name="workout_type" value="run">
+        <button type="submit" class="workout-type-card">
+            <span class="type-icon">🏃</span>
+            <span class="type-name">Run</span>
+            <span class="type-desc">Track distance and duration</span>
+        </button>
+    </form>
+</div>
+
+<div class="back-link">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+</div>
+{% endblock %}
